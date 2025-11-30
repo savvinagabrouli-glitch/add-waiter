@@ -244,7 +244,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
         private async Task AcceptNotificationAsync(CallWaiter? call)
         {
-            if (call == null) return;
+            if (call == null || CurrentStaff == null) return;
             try
             {
                 call.IsHandled = true;
@@ -254,6 +254,56 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
                 if (call.TableId != 0 && !AttentionTableIds.Contains(call.TableId))
                     AttentionTableIds.Add(call.TableId);
+
+                var activeOrder = _orders.FirstOrDefault(o => o.TableId == call.TableId &&
+                    !string.Equals(o.Status, "Closed", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(o.Status, "Cancelled", StringComparison.OrdinalIgnoreCase));
+
+                if (activeOrder != null)
+                {
+                    var belongsToAnother = activeOrder.WaiterId != 0 && activeOrder.WaiterId != CurrentStaff.Id;
+                    if (!belongsToAnother)
+                    {
+                        activeOrder.WaiterId = CurrentStaff.Id;
+                        if (string.Equals(activeOrder.Status, "Preorder", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(activeOrder.Status, "New", StringComparison.OrdinalIgnoreCase) ||
+                            string.IsNullOrWhiteSpace(activeOrder.Status))
+                        {
+                            activeOrder.Status = "Pending";
+                            RemoveAttentionForTable(activeOrder.TableId);
+                        }
+                        else if (string.Equals(activeOrder.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                        {
+                            RemoveAttentionForTable(activeOrder.TableId);
+                        }
+
+                        await _orderService.UpdateAsync(activeOrder);
+
+                        var existing = _orders.FirstOrDefault(o => o.Id == activeOrder.Id);
+                        if (existing != null)
+                            _orders.Remove(existing);
+                        _orders.Add(activeOrder);
+
+                        if (SelectedTable?.Id == call.TableId)
+                        {
+                            ActiveOrder = activeOrder;
+                            await LoadOrderDetailsAsync(activeOrder);
+                            RefreshOrderBindings();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Этот стол обслуживается другим официантом.");
+                        if (SelectedTable?.Id == call.TableId)
+                        {
+                            await LoadActiveOrderAsync();
+                        }
+                    }
+                }
+                else if (SelectedTable?.Id == call.TableId)
+                {
+                    await LoadActiveOrderAsync();
+                }
             }
             catch (Exception ex)
             {
