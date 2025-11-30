@@ -1,6 +1,6 @@
 using Cursework.Application.Interfaces;
-using Cursework.Application.Realtime;
 using Cursework.Application.Models;
+using Cursework.Application.Realtime;
 using Cursework.Domains.Models;
 using Cursework.Wpf.Services.HallLayout;
 using Cursework.Wpf.Services.Realtime;
@@ -10,12 +10,13 @@ using Cursework.Wpf.Views.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using WpfApplication = System.Windows.Application;
 
 namespace Cursework.Wpf.ViewModels.Waiter
 {
@@ -309,7 +310,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
             var dialog = new GuestCountDialog(1)
             {
-                Owner = Application.Current.MainWindow
+                Owner = WpfApplication.Current.MainWindow
             };
 
             if (dialog.ShowDialog() != true)
@@ -322,8 +323,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
                     TableId = SelectedTable.Id,
                     WaiterId = CurrentStaff.Id,
                     Status = "New",
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now
                 };
 
                 var created = await _orderService.AddAsync(order);
@@ -365,7 +365,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
             var dialog = new WaiterOrderDetailsDialog(vm)
             {
-                Owner = Application.Current.MainWindow
+                Owner = WpfApplication.Current.MainWindow
             };
 
             vm.RequestClose += (_, result) => dialog.DialogResult = result;
@@ -400,7 +400,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
             }
         }
 
-        private void OnCallWaiterChanged(object? sender, EntityChangeDto<CallWaiter> dto)
+        private void OnCallWaiterChanged(CallWaiterChangedDto dto)
         {
             if (dto?.CallWaiter == null)
                 return;
@@ -436,26 +436,26 @@ namespace Cursework.Wpf.ViewModels.Waiter
             });
         }
 
-        private void OnOrderChanged(object? sender, EntityChangeDto<Order> dto)
+        private void OnOrderChanged(OrderChangedDto dto)
         {
-            if (dto?.Entity == null)
+            if (dto?.Order == null)
                 return;
 
             RunOnUi(async () =>
             {
-                var existing = _orders.FirstOrDefault(o => o.Id == dto.Entity.Id);
+                var existing = _orders.FirstOrDefault(o => o.Id == dto.Order.Id);
                 switch (dto.Action)
                 {
                     case EntityChangeAction.Created:
                         if (existing == null)
-                            _orders.Add(dto.Entity);
+                            _orders.Add(dto.Order);
                         break;
                     case EntityChangeAction.Updated:
                         if (existing != null)
                         {
                             _orders.Remove(existing);
                         }
-                        _orders.Add(dto.Entity);
+                        _orders.Add(dto.Order);
                         break;
                     case EntityChangeAction.Deleted:
                         if (existing != null)
@@ -466,14 +466,14 @@ namespace Cursework.Wpf.ViewModels.Waiter
             });
         }
 
-        private void OnDiningTableChanged(object? sender, EntityChangeDto<DiningTable> dto)
+        private void OnDiningTableChanged(DiningTableChangedDto dto)
         {
-            if (dto?.Entity == null)
+            if (dto?.Table == null)
                 return;
 
             RunOnUi(async () =>
             {
-                var existing = _tables.FirstOrDefault(t => t.Id == dto.Entity.Id);
+                var existing = _tables.FirstOrDefault(t => t.Id == dto.Table.Id);
                 if (dto.Action == EntityChangeAction.Deleted)
                 {
                     if (existing != null)
@@ -483,7 +483,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
                 {
                     if (existing != null)
                         _tables.Remove(existing);
-                    _tables.Add(dto.Entity);
+                    _tables.Add(dto.Table);
                 }
                 await LoadActiveOrderAsync();
             });
@@ -491,7 +491,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
         private void RunOnUi(Action action)
         {
-            var dispatcher = Application.Current?.Dispatcher;
+            var dispatcher = WpfApplication.Current?.Dispatcher;
             if (dispatcher == null || dispatcher.CheckAccess())
                 action();
             else
