@@ -12,7 +12,19 @@ namespace Cursework.Wpf.Views.Dialogs
 
             viewModel.RequestClose += (_, result) =>
             {
-                DialogResult = result;
+                if (IsLoaded)
+                {
+                    try
+                    {
+                        DialogResult = result;
+                    }
+                    catch
+                    {
+                        Close();
+                        return;
+                    }
+                }
+
                 Close();
             };
         }

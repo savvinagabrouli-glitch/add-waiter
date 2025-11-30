@@ -39,14 +39,14 @@
                     </Border>
 
                     <StackPanel Margin="12,0,0,0">
-                        <TextBlock Text="Управление кафе" FontSize="24" FontWeight="SemiBold" />
+                        <TextBlock Text="Панель официанта" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,4" />
                         <TextBlock FontSize="14" Opacity="0.8" Text="{Binding Map.SelectedZoneTitle}" />
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
-                        <TextBlock Text="{Binding CurrentStaff.Name}" FontWeight="SemiBold" FontSize="16" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding CurrentStaff.Name}" FontWeight="SemiBold" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,4" />
                         <Border CornerRadius="999" Padding="8,2" HorizontalAlignment="Center" Background="#FFF3F4F7">
                             <TextBlock Text="{Binding CurrentStaff.Role, Converter={StaticResource RoleDisplay}}" FontSize="13" Opacity="0.8" />
                         </Border>
@@ -108,12 +108,13 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/main-hall.png"
-                                                             ItemsSource="{Binding Map.TablesOnMap}"
-                                                             SelectedItem="{Binding Map.SelectedTableOnMap, Mode=TwoWay}"
-                                                             Zoom="{Binding Map.Zoom}"
-                                                             IsDragEnabled="False"
-                                                             IsContextMenuEnabled="False"/>
+                             <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/main-hall.png"
+                                                         ItemsSource="{Binding Map.TablesOnMap}"
+                                                         SelectedItem="{Binding Map.SelectedTableOnMap, Mode=TwoWay}"
+                                                         Zoom="{Binding Map.Zoom}"
+                                                         IsDragEnabled="False"
+                                                         IsContextMenuEnabled="False"
+                                                         AttentionTableIds="{Binding AttentionTableIds}"/>
                             </Grid>
 
                             <Grid>
@@ -127,12 +128,13 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
-                                                             ItemsSource="{Binding Map.TablesOnMap}"
-                                                             SelectedItem="{Binding Map.SelectedTableOnMap, Mode=TwoWay}"
-                                                             Zoom="{Binding Map.Zoom}"
-                                                             IsDragEnabled="False"
-                                                             IsContextMenuEnabled="False"/>
+                             <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
+                                                         ItemsSource="{Binding Map.TablesOnMap}"
+                                                         SelectedItem="{Binding Map.SelectedTableOnMap, Mode=TwoWay}"
+                                                         Zoom="{Binding Map.Zoom}"
+                                                         IsDragEnabled="False"
+                                                         IsContextMenuEnabled="False"
+                                                         AttentionTableIds="{Binding AttentionTableIds}"/>
                             </Grid>
 
                             <Grid>
@@ -146,12 +148,13 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
-                                                             ItemsSource="{Binding Map.TablesOnMap}"
-                                                             SelectedItem="{Binding Map.SelectedTableOnMap, Mode=TwoWay}"
-                                                             Zoom="{Binding Map.Zoom}"
-                                                             IsDragEnabled="False"
-                                                             IsContextMenuEnabled="False"/>
+                             <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
+                                                         ItemsSource="{Binding Map.TablesOnMap}"
+                                                         SelectedItem="{Binding Map.SelectedTableOnMap, Mode=TwoWay}"
+                                                         Zoom="{Binding Map.Zoom}"
+                                                         IsDragEnabled="False"
+                                                         IsContextMenuEnabled="False"
+                                                         AttentionTableIds="{Binding AttentionTableIds}"/>
                             </Grid>
 
                             <Grid>
@@ -165,12 +168,13 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Grid.Style>
-                                <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
-                                                             ItemsSource="{Binding Map.TablesOnMap}"
-                                                             SelectedItem="{Binding Map.SelectedTableOnMap, Mode=TwoWay}"
-                                                             Zoom="{Binding Map.Zoom}"
-                                                             IsDragEnabled="False"
-                                                             IsContextMenuEnabled="False"/>
+                             <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
+                                                         ItemsSource="{Binding Map.TablesOnMap}"
+                                                         SelectedItem="{Binding Map.SelectedTableOnMap, Mode=TwoWay}"
+                                                         Zoom="{Binding Map.Zoom}"
+                                                         IsDragEnabled="False"
+                                                         IsContextMenuEnabled="False"
+                                                         AttentionTableIds="{Binding AttentionTableIds}"/>
                             </Grid>
                         </Grid>
                     </ScrollViewer>
@@ -201,7 +205,7 @@
             </Border>
 
             <!-- Right panel with overlay notifications -->
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" x:Name="RightPanelHost">
                 <Grid>
                     <Grid.Resources>
                         <Style TargetType="Border">
@@ -209,6 +213,9 @@
                         </Style>
                         <Style TargetType="StackPanel">
                             <Setter Property="Margin" Value="0,0,0,8"/>
+                        </Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Margin" Value="0,0,0,6"/>
                         </Style>
                     </Grid.Resources>
 
@@ -275,7 +282,7 @@
 
                         <Border Style="{StaticResource Card}" Padding="12" Visibility="{Binding ShowOrderItems, Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel>
-                                <Grid>
+                                <Grid Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
@@ -293,7 +300,7 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <StackPanel>
+                                                    <StackPanel Margin="0,0,8,0">
                                                         <TextBlock Text="{Binding DishName}" FontWeight="SemiBold"/>
                                                         <TextBlock Text="{Binding Quantity, StringFormat=Количество: {0}}" Foreground="{StaticResource Brush.TextMuted}"/>
                                                         <TextBlock Text="{Binding Price, StringFormat=Сумма: {0:0.00}}" Foreground="{StaticResource Brush.TextMuted}"/>
@@ -329,11 +336,12 @@
                         BorderThickness="1"
                         CornerRadius="16"
                         Padding="12"
-                        Width="380"
-                        HorizontalAlignment="Right"
+                        HorizontalAlignment="Stretch"
+                        Width="{Binding ActualWidth, ElementName=RightPanelHost}"
+                        Panel.ZIndex="10"
                         Visibility="{Binding IsNotificationsOpen, Converter={StaticResource BoolToVisibilityConverter}}">
                     <StackPanel>
-                        <TextBlock Text="Вызовы официанта" Style="{StaticResource H2}"/>
+                        <TextBlock Text="Вызовы официанта" Style="{StaticResource H2}" Margin="0,0,0,12"/>
                         <ItemsControl ItemsSource="{Binding Notifications}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>

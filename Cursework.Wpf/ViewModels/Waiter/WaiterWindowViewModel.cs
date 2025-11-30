@@ -39,6 +39,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
         public ObservableCollection<CallWaiter> Notifications { get; } = new();
         public ObservableCollection<WaiterOrderItemViewModel> OrderItems { get; } = new();
+        public ObservableCollection<int> AttentionTableIds { get; } = new();
 
         private HallMapViewModel _map;
         public HallMapViewModel Map
@@ -85,6 +86,8 @@ namespace Cursework.Wpf.ViewModels.Waiter
                     Raise(nameof(SelectedTableName));
                     Raise(nameof(SelectedTableSeats));
                     Raise(nameof(SelectedTableStatus));
+                    if (value != null)
+                        RemoveAttentionForTable(value.Id);
                     _ = LoadActiveOrderAsync();
                 }
             }
@@ -248,6 +251,9 @@ namespace Cursework.Wpf.ViewModels.Waiter
                 call.HandledAt = DateTime.Now;
                 await _callWaiterService.UpdateAsync(call);
                 Notifications.Remove(call);
+
+                if (call.TableId != 0 && !AttentionTableIds.Contains(call.TableId))
+                    AttentionTableIds.Add(call.TableId);
             }
             catch (Exception ex)
             {
@@ -423,6 +429,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
                     created.Status = "Pending";
                     await _orderService.UpdateAsync(created);
                     await LoadOrderDetailsAsync(created);
+                    RemoveAttentionForTable(created.TableId);
                     RefreshOrderBindings();
                 }
             }
@@ -456,8 +463,6 @@ namespace Cursework.Wpf.ViewModels.Waiter
             {
                 Owner = WpfApplication.Current.MainWindow
             };
-
-            vm.RequestClose += (_, result) => dialog.DialogResult = result;
             dialog.ShowDialog();
 
             await LoadOrderDetailsAsync(targetOrder);
@@ -485,6 +490,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
                 ActiveOrder.Status = "Pending";
                 await _orderService.UpdateAsync(ActiveOrder);
                 await LoadOrderDetailsAsync(ActiveOrder);
+                RemoveAttentionForTable(ActiveOrder.TableId);
 
                 var related = Notifications.FirstOrDefault(c => c.TableId == ActiveOrder.TableId && string.Equals(c.Type, "AcceptPreorder", StringComparison.OrdinalIgnoreCase));
                 if (related != null)
@@ -629,6 +635,12 @@ namespace Cursework.Wpf.ViewModels.Waiter
                 action();
             else
                 dispatcher.Invoke(action);
+        }
+
+        private void RemoveAttentionForTable(int tableId)
+        {
+            if (AttentionTableIds.Contains(tableId))
+                AttentionTableIds.Remove(tableId);
         }
 
         public void Dispose()
