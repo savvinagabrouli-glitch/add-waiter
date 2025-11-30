@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Collections.Specialized;
 using WpfApplication = System.Windows.Application;
 
 namespace Cursework.Wpf.ViewModels.Waiter
@@ -50,7 +51,18 @@ namespace Cursework.Wpf.ViewModels.Waiter
         public Staff? CurrentStaff
         {
             get => _currentStaff;
-            private set => Set(ref _currentStaff, value);
+            private set
+            {
+                if (Set(ref _currentStaff, value))
+                {
+                    Raise(nameof(IsForeignOrder));
+                    Raise(nameof(ForeignOrderText));
+                    Raise(nameof(ShowPreorderActions));
+                    Raise(nameof(ShowActiveOrderActions));
+                    Raise(nameof(ShowOrderItems));
+                    Raise(nameof(CanEditItems));
+                }
+            }
         }
 
         private bool _isNotificationsOpen;
@@ -60,7 +72,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
             set => Set(ref _isNotificationsOpen, value);
         }
 
-        public int NotificationsCount => Notifications.Count;
+        public int UnhandledNotificationsCount => Notifications.Count;
 
         private DiningTable? _selectedTable;
         public DiningTable? SelectedTable
@@ -93,13 +105,38 @@ namespace Cursework.Wpf.ViewModels.Waiter
                     Raise(nameof(IsOrderActive));
                     Raise(nameof(ActiveOrderStatus));
                     Raise(nameof(ActiveOrderTotal));
+                    Raise(nameof(IsForeignOrder));
+                    Raise(nameof(ForeignOrderText));
+                    Raise(nameof(HasNoActiveOrder));
+                    Raise(nameof(ShowPreorderActions));
+                    Raise(nameof(ShowActiveOrderActions));
+                    Raise(nameof(ShowOrderItems));
+                    Raise(nameof(CanEditItems));
                 }
             }
         }
 
         public bool IsOrderActive => ActiveOrder != null;
+        public bool HasNoActiveOrder => ActiveOrder == null;
         public string ActiveOrderStatus => ActiveOrder?.Status ?? string.Empty;
         public decimal ActiveOrderTotal { get; private set; }
+        public bool IsForeignOrder => ActiveOrder != null && CurrentStaff != null && ActiveOrder.WaiterId != 0 && ActiveOrder.WaiterId != CurrentStaff.Id;
+        public string ForeignOrderText
+        {
+            get
+            {
+                if (!IsForeignOrder || ActiveOrder == null)
+                    return string.Empty;
+
+                var waiterName = _staff.FirstOrDefault(s => s.Id == ActiveOrder.WaiterId)?.Name ?? "другим официантом";
+                return $"Обслуживается другим официантом: {waiterName}";
+            }
+        }
+
+        public bool ShowPreorderActions => ActiveOrder != null && !IsForeignOrder && string.Equals(ActiveOrder.Status, "Preorder", StringComparison.OrdinalIgnoreCase) && (ActiveOrder.WaiterId == null || ActiveOrder.WaiterId == 0 || ActiveOrder.WaiterId == CurrentStaff?.Id);
+        public bool ShowActiveOrderActions => ActiveOrder != null && !IsForeignOrder && !string.Equals(ActiveOrder.Status, "Preorder", StringComparison.OrdinalIgnoreCase);
+        public bool ShowOrderItems => ActiveOrder != null && !IsForeignOrder && !string.Equals(ActiveOrder.Status, "Preorder", StringComparison.OrdinalIgnoreCase);
+        public bool CanEditItems => ActiveOrder != null && !IsForeignOrder && !string.Equals(ActiveOrder.Status, "Preorder", StringComparison.OrdinalIgnoreCase);
 
         public ICommand ToggleNotificationsCommand { get; }
         public ICommand AcceptNotificationCommand { get; }
@@ -135,20 +172,27 @@ namespace Cursework.Wpf.ViewModels.Waiter
             AcceptNotificationCommand = new RelayCommand(async p => await AcceptNotificationAsync(p as CallWaiter));
             PrevZoneCommand = new RelayCommand(_ => SwitchZone(-1));
             NextZoneCommand = new RelayCommand(_ => SwitchZone(1));
-            CreateOrderCommand = new RelayCommand(async _ => await CreateOrderAsync(), _ => SelectedTable != null);
-            ViewOrderCommand = new RelayCommand(async _ => await OpenOrderDialogAsync(), _ => ActiveOrder != null);
-            CloseOrderCommand = new RelayCommand(async _ => await CloseOrderAsync(), _ => ActiveOrder != null && string.Equals(ActiveOrder.Status, "ReadyToPay", StringComparison.OrdinalIgnoreCase));
-            SaveItemsCommand = new RelayCommand(async _ => await SaveItemsAsync(), _ => ActiveOrder != null && OrderItems.Any());
+            CreateOrderCommand = new RelayCommand(async _ => await CreateOrderAsync(), _ => SelectedTable != null && ActiveOrder == null);
+            ViewOrderCommand = new RelayCommand(async _ => await ViewOrderAsync(), _ => ActiveOrder != null && !IsForeignOrder);
+            CloseOrderCommand = new RelayCommand(async _ => await CloseOrderAsync(), _ => ActiveOrder != null && !IsForeignOrder && string.Equals(ActiveOrder.Status, "ReadyToPay", StringComparison.OrdinalIgnoreCase));
+            SaveItemsCommand = new RelayCommand(async _ => await SaveItemsAsync(), _ => CanEditItems && OrderItems.Any());
 
             _realtimeService.CallWaiterChanged += OnCallWaiterChanged;
             _realtimeService.OrderChanged += OnOrderChanged;
             _realtimeService.DiningTableChanged += OnDiningTableChanged;
+
+            Notifications.CollectionChanged += Notifications_CollectionChanged;
         }
 
         public async Task InitAsync(Staff staff)
         {
             CurrentStaff = staff;
             await LoadBaseDataAsync();
+        }
+
+        private void Notifications_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            Raise(nameof(UnhandledNotificationsCount));
         }
 
         private async Task LoadBaseDataAsync()
@@ -171,7 +215,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
             var all = await _callWaiterService.GetAllAsync();
             foreach (var c in all.Where(cw => cw.IsHandled == false))
                 Notifications.Add(c);
-            Raise(nameof(NotificationsCount));
+            Raise(nameof(UnhandledNotificationsCount));
         }
 
         private void Map_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -204,7 +248,6 @@ namespace Cursework.Wpf.ViewModels.Waiter
                 call.HandledAt = DateTime.Now;
                 await _callWaiterService.UpdateAsync(call);
                 Notifications.Remove(call);
-                Raise(nameof(NotificationsCount));
             }
             catch (Exception ex)
             {
@@ -224,8 +267,15 @@ namespace Cursework.Wpf.ViewModels.Waiter
             var tableId = SelectedTable.Id;
             ActiveOrder = _orders.FirstOrDefault(o => o.TableId == tableId && !string.Equals(o.Status, "Closed", StringComparison.OrdinalIgnoreCase) && !string.Equals(o.Status, "Cancelled", StringComparison.OrdinalIgnoreCase));
 
-            if (ActiveOrder != null)
+            if (ActiveOrder != null && !IsForeignOrder)
+            {
                 await LoadOrderDetailsAsync(ActiveOrder);
+            }
+            else if (IsForeignOrder)
+            {
+                _currentDetails = null;
+                OrderItems.Clear();
+            }
 
             Raise(nameof(ActiveOrderTotal));
         }
@@ -260,6 +310,8 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
                 ActiveOrderTotal = OrderItems.Sum(i => i.Price);
                 Raise(nameof(ActiveOrderTotal));
+                await UpdateReadyToPayStateAsync();
+                RefreshOrderBindings();
             }
             catch (Exception ex)
             {
@@ -279,7 +331,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
         private async Task SaveOrderDetailsInternalAsync()
         {
-            if (ActiveOrder == null || _currentDetails == null)
+            if (ActiveOrder == null || _currentDetails == null || IsForeignOrder)
                 return;
 
             try
@@ -296,11 +348,47 @@ namespace Cursework.Wpf.ViewModels.Waiter
 
                 var saved = await _orderDetailsService.SaveAsync(_currentDetails);
                 _currentDetails = saved;
+
+                await UpdateReadyToPayStateAsync();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Не удалось сохранить детали заказа: {ex.Message}");
             }
+        }
+
+        private async Task UpdateReadyToPayStateAsync()
+        {
+            if (ActiveOrder == null || IsForeignOrder)
+                return;
+
+            var allServed = OrderItems.Any() && OrderItems.All(i => string.Equals(i.Status, "Served", StringComparison.OrdinalIgnoreCase));
+
+            if (allServed && !string.Equals(ActiveOrder.Status, "ReadyToPay", StringComparison.OrdinalIgnoreCase))
+            {
+                ActiveOrder.Status = "ReadyToPay";
+                await _orderService.UpdateAsync(ActiveOrder);
+            }
+            else if (!allServed && string.Equals(ActiveOrder.Status, "ReadyToPay", StringComparison.OrdinalIgnoreCase))
+            {
+                ActiveOrder.Status = "Pending";
+                await _orderService.UpdateAsync(ActiveOrder);
+            }
+
+            RefreshOrderBindings();
+        }
+
+        private void RefreshOrderBindings()
+        {
+            Raise(nameof(ActiveOrderStatus));
+            Raise(nameof(ShowPreorderActions));
+            Raise(nameof(ShowActiveOrderActions));
+            Raise(nameof(ShowOrderItems));
+            Raise(nameof(CanEditItems));
+            Raise(nameof(IsForeignOrder));
+            Raise(nameof(ForeignOrderText));
+            Raise(nameof(IsOrderActive));
+            Raise(nameof(HasNoActiveOrder));
         }
 
         private async Task CreateOrderAsync()
@@ -335,6 +423,7 @@ namespace Cursework.Wpf.ViewModels.Waiter
                     created.Status = "Pending";
                     await _orderService.UpdateAsync(created);
                     await LoadOrderDetailsAsync(created);
+                    RefreshOrderBindings();
                 }
             }
             catch (Exception ex)
@@ -374,9 +463,54 @@ namespace Cursework.Wpf.ViewModels.Waiter
             await LoadOrderDetailsAsync(targetOrder);
         }
 
+        private async Task ViewOrderAsync()
+        {
+            if (ActiveOrder == null || SelectedTable == null || CurrentStaff == null)
+                return;
+
+            if (IsForeignOrder)
+                return;
+
+            var isPreorder = string.Equals(ActiveOrder.Status, "Preorder", StringComparison.OrdinalIgnoreCase);
+            if (isPreorder && !ShowPreorderActions)
+                return;
+
+            var wasReadyToPay = string.Equals(ActiveOrder.Status, "ReadyToPay", StringComparison.OrdinalIgnoreCase);
+
+            await OpenOrderDialogAsync(ActiveOrder);
+
+            if (isPreorder)
+            {
+                ActiveOrder.WaiterId = CurrentStaff.Id;
+                ActiveOrder.Status = "Pending";
+                await _orderService.UpdateAsync(ActiveOrder);
+                await LoadOrderDetailsAsync(ActiveOrder);
+
+                var related = Notifications.FirstOrDefault(c => c.TableId == ActiveOrder.TableId && string.Equals(c.Type, "AcceptPreorder", StringComparison.OrdinalIgnoreCase));
+                if (related != null)
+                {
+                    related.IsHandled = true;
+                    related.HandledAt = DateTime.Now;
+                    await _callWaiterService.UpdateAsync(related);
+                    Notifications.Remove(related);
+                }
+            }
+            else if (wasReadyToPay)
+            {
+                var allServed = OrderItems.All(i => string.Equals(i.Status, "Served", StringComparison.OrdinalIgnoreCase));
+                if (!allServed)
+                {
+                    ActiveOrder.Status = "Pending";
+                    await _orderService.UpdateAsync(ActiveOrder);
+                }
+            }
+
+            RefreshOrderBindings();
+        }
+
         private async Task CloseOrderAsync()
         {
-            if (ActiveOrder == null)
+            if (ActiveOrder == null || IsForeignOrder)
                 return;
 
             if (MessageBox.Show("Закрыть заказ?", "Заказ", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
@@ -432,7 +566,6 @@ namespace Cursework.Wpf.ViewModels.Waiter
                             Notifications.Remove(existing);
                         break;
                 }
-                Raise(nameof(NotificationsCount));
             });
         }
 

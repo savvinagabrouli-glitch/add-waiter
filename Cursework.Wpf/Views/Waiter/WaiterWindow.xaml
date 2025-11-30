@@ -61,8 +61,8 @@
                             </StackPanel.Resources>
                             <TextBlock Text="🔔" FontSize="16"/>
                             <TextBlock Text="Уведомления"/>
-                            <Border Background="{StaticResource Brush.Accent}" CornerRadius="10" Padding="6,2" Visibility="{Binding NotificationsCount, Converter={StaticResource IntToVisibilityConverter}}">
-                                <TextBlock Text="{Binding NotificationsCount}" Foreground="White" FontWeight="Bold"/>
+                            <Border Background="{StaticResource Brush.Accent}" CornerRadius="10" Padding="6,2" Visibility="{Binding UnhandledNotificationsCount, Converter={StaticResource IntToVisibilityConverter}}">
+                                <TextBlock Text="{Binding UnhandledNotificationsCount}" Foreground="White" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
                     </Button>
@@ -75,7 +75,6 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="420"/>
-                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <!-- Map area -->
@@ -89,8 +88,9 @@
                     <ScrollViewer x:Name="MapScroll"
                                   Grid.Row="0"
                                   PreviewMouseWheel="MapScroll_PreviewMouseWheel"
-                                  HorizontalScrollBarVisibility="Auto"
-                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Hidden"
+                                  CanContentScroll="False"
                                   Background="Transparent">
                         <Grid MinWidth="900" MinHeight="650" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                             <Grid.LayoutTransform>
@@ -200,106 +200,157 @@
                 </Grid>
             </Border>
 
-            <!-- Right panel -->
-            <StackPanel Grid.Column="1">
-                <StackPanel.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="Margin" Value="0,0,0,12"/>
-                    </Style>
-                    <Style TargetType="StackPanel">
-                        <Setter Property="Margin" Value="0,0,0,8"/>
-                    </Style>
-                </StackPanel.Resources>
-                <Border Style="{StaticResource Card}" Padding="12">
-                    <StackPanel>
-                        <TextBlock Text="Стол" Style="{StaticResource H3}"/>
-                        <TextBlock Text="{Binding SelectedTableName}" FontSize="16" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding SelectedTableSeats, StringFormat=Мест: {0}}" Foreground="{StaticResource Brush.TextMuted}"/>
-                        <TextBlock Text="{Binding SelectedTableStatus, Converter={StaticResource StatusToRu}}" Foreground="{StaticResource Brush.TextMuted}"/>
-                    </StackPanel>
-                </Border>
+            <!-- Right panel with overlay notifications -->
+            <Grid Grid.Column="1">
+                <Grid>
+                    <Grid.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="Margin" Value="0,0,0,12"/>
+                        </Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Margin" Value="0,0,0,8"/>
+                        </Style>
+                    </Grid.Resources>
 
-                <Border Style="{StaticResource Card}" Padding="12">
                     <StackPanel>
-                        <TextBlock Text="Заказ" Style="{StaticResource H3}"/>
-                        <TextBlock Text="{Binding ActiveOrder.Id, StringFormat=№ {0}}" FontSize="16" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding ActiveOrderStatus, Converter={StaticResource OrderStatusToRu}}" Foreground="{StaticResource Brush.TextMuted}"/>
-                        <TextBlock Text="{Binding ActiveOrderTotal, StringFormat=Сумма: {0:0.00}}"/>
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel.Resources>
-                                <Style TargetType="Button">
-                                    <Setter Property="Margin" Value="0,0,8,0"/>
-                                </Style>
-                            </StackPanel.Resources>
-                            <Button Content="Создать заказ" Style="{StaticResource Button.Base}" Command="{Binding CreateOrderCommand}"/>
-                            <Button Content="Детали" Style="{StaticResource Button.Outline}" Command="{Binding ViewOrderCommand}" IsEnabled="{Binding IsOrderActive}"/>
-                        </StackPanel>
-                        <Button Content="Закрыть заказ" Style="{StaticResource Button.Outline}" Command="{Binding CloseOrderCommand}"/>
-                    </StackPanel>
-                </Border>
+                        <Border Style="{StaticResource Card}" Padding="12">
+                            <StackPanel>
+                                <TextBlock Text="Стол" Style="{StaticResource H3}"/>
+                                <TextBlock Text="{Binding SelectedTableName}" FontSize="16" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding SelectedTableSeats, StringFormat=Мест: {0}}" Foreground="{StaticResource Brush.TextMuted}"/>
+                                <TextBlock Text="{Binding SelectedTableStatus, Converter={StaticResource StatusToRu}}" Foreground="{StaticResource Brush.TextMuted}"/>
+                            </StackPanel>
+                        </Border>
 
-                <Border Style="{StaticResource Card}" Padding="12">
+                        <Border Style="{StaticResource Card}" Padding="12">
+                            <StackPanel>
+                                <TextBlock Text="Заказ" Style="{StaticResource H3}"/>
+                                <StackPanel>
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsForeignOrder}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock Text="{Binding ActiveOrder.Id, StringFormat=№ {0}}" FontSize="16" FontWeight="SemiBold" Visibility="{Binding IsOrderActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <TextBlock Text="{Binding ActiveOrderStatus, Converter={StaticResource OrderStatusToRu}}" Foreground="{StaticResource Brush.TextMuted}" Visibility="{Binding IsOrderActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <TextBlock Text="{Binding ActiveOrderTotal, StringFormat=Сумма: {0:0.00}}" Visibility="{Binding IsOrderActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </StackPanel>
+
+                                <TextBlock Text="{Binding ForeignOrderText}" Foreground="{StaticResource Brush.TextMuted}" Visibility="{Binding IsForeignOrder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                <StackPanel Orientation="Horizontal" Visibility="{Binding HasNoActiveOrder, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <Button Content="Создать заказ" Style="{StaticResource Button.Base}" Command="{Binding CreateOrderCommand}"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Visibility="{Binding ShowPreorderActions, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <Button Content="Просмотреть предзаказ" Style="{StaticResource Button.Outline}" Command="{Binding ViewOrderCommand}"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Visibility="{Binding ShowActiveOrderActions, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Margin" Value="0,0,8,0"/>
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <Button Content="Детали" Style="{StaticResource Button.Outline}" Command="{Binding ViewOrderCommand}"/>
+                                    <Button Content="Закрыть заказ" Style="{StaticResource Button.Outline}" Command="{Binding CloseOrderCommand}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Padding="12" Visibility="{Binding ShowOrderItems, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Позиции заказа" Style="{StaticResource H3}"/>
+                                    <Button Grid.Column="1" Content="Добавить позицию" Style="{StaticResource Button.Base}" Command="{Binding ViewOrderCommand}"/>
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding OrderItems}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{StaticResource Brush.SurfaceAlt}" CornerRadius="{StaticResource Radius.M}" Padding="8" Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding DishName}" FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Quantity, StringFormat=Количество: {0}}" Foreground="{StaticResource Brush.TextMuted}"/>
+                                                        <TextBlock Text="{Binding Price, StringFormat=Сумма: {0:0.00}}" Foreground="{StaticResource Brush.TextMuted}"/>
+                                                    </StackPanel>
+                                                    <ComboBox Grid.Column="1" Width="140" SelectedValue="{Binding Status, Mode=TwoWay}" Style="{StaticResource ComboBox.Base}" IsEnabled="{Binding DataContext.CanEditItems, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                        <ComboBox.ItemsSource>
+                                                            <x:Array Type="{x:Type sys:String}" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                                                <sys:String>Ordered</sys:String>
+                                                                <sys:String>Preparing</sys:String>
+                                                                <sys:String>Served</sys:String>
+                                                            </x:Array>
+                                                        </ComboBox.ItemsSource>
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Converter={StaticResource OrderItemStatusToRu}}"/>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                    <Button Grid.Column="2" Content="💾" Style="{StaticResource Button.Outline}" Command="{Binding DataContext.SaveItemsCommand, RelativeSource={RelativeSource AncestorType=Window}}" Margin="8,0,0,0" IsEnabled="{Binding DataContext.CanEditItems, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Notifications overlay -->
+                <Border Background="{StaticResource Brush.Surface}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1"
+                        CornerRadius="16"
+                        Padding="12"
+                        Width="380"
+                        HorizontalAlignment="Right"
+                        Visibility="{Binding IsNotificationsOpen, Converter={StaticResource BoolToVisibilityConverter}}">
                     <StackPanel>
-                        <TextBlock Text="Позиции заказа" Style="{StaticResource H3}"/>
-                        <ItemsControl ItemsSource="{Binding OrderItems}">
+                        <TextBlock Text="Вызовы официанта" Style="{StaticResource H2}"/>
+                        <ItemsControl ItemsSource="{Binding Notifications}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{StaticResource Brush.SurfaceAlt}" CornerRadius="{StaticResource Radius.M}" Padding="8" Margin="0,0,0,8">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding DishName}" FontWeight="SemiBold"/>
-                                                <TextBlock Text="{Binding Quantity, StringFormat=Количество: {0}}" Foreground="{StaticResource Brush.TextMuted}"/>
-                                                <TextBlock Text="{Binding Price, StringFormat=Сумма: {0:0.00}}" Foreground="{StaticResource Brush.TextMuted}"/>
-                                            </StackPanel>
-                                            <ComboBox Grid.Column="1" Width="140" SelectedValue="{Binding Status, Mode=TwoWay}">
-                                                <ComboBox.ItemsSource>
-                                                    <x:Array Type="{x:Type sys:String}" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-                                                        <sys:String>Ordered</sys:String>
-                                                        <sys:String>Preparing</sys:String>
-                                                        <sys:String>Served</sys:String>
-                                                    </x:Array>
-                                                </ComboBox.ItemsSource>
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding Converter={StaticResource OrderItemStatusToRu}}"/>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                            <Button Grid.Column="2" Content="💾" Style="{StaticResource Button.Outline}" Command="{Binding DataContext.SaveItemsCommand, RelativeSource={RelativeSource AncestorType=Window}}" Margin="8,0,0,0"/>
-                                        </Grid>
+                                    <Border Style="{StaticResource Card}" Padding="10" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Table.Name}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding CreatedAt, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Foreground="{StaticResource Brush.TextMuted}"/>
+                                            <TextBlock Text="{Binding Type, Converter={StaticResource CallType}}" Foreground="{StaticResource Brush.TextMuted}"/>
+                                            <Button Content="Принять" Style="{StaticResource Button.Base}" Command="{Binding DataContext.AcceptNotificationCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="0,6,0,0"/>
+                                        </StackPanel>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
                 </Border>
-            </StackPanel>
-
-            <!-- Notifications panel -->
-            <Border Grid.Column="2" Background="{StaticResource Brush.Surface}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="16" Padding="12" Width="360" Visibility="{Binding IsNotificationsOpen, Converter={StaticResource BoolToVisibilityConverter}}">
-                <StackPanel>
-                    <TextBlock Text="Вызовы официанта" Style="{StaticResource H2}"/>
-                    <ItemsControl ItemsSource="{Binding Notifications}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource Card}" Padding="10" Margin="0,0,0,8">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Table.Name}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding CreatedAt, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Foreground="{StaticResource Brush.TextMuted}"/>
-                                        <TextBlock Text="{Binding Type, Converter={StaticResource CallType}}" Foreground="{StaticResource Brush.TextMuted}"/>
-                                        <Button Content="Принять" Style="{StaticResource Button.Base}" Command="{Binding DataContext.AcceptNotificationCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="0,6,0,0"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
