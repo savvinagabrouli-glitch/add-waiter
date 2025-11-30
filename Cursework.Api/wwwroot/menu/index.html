@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Меню • Кафе</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+    <div class="page-root">
+        <header class="page-header">
+            <div class="brand-block">
+                <div class="brand-logo">ТК</div>
+                <div class="brand-text">
+                    <div class="brand-name">Кафе</div>
+                    <div class="brand-subtitle">
+                        Добро пожаловать! Сделайте предзаказ прямо со смартфона.
+                    </div>
+                </div>
+            </div>
+            <div class="table-info" id="table-info">
+                Стол не указан
+            </div>
+
+            <div class="order-status-pill" id="order-status-pill">
+                <span id="order-status-text">Заказ ещё не оформлен</span>
+            </div>
+        </header>
+
+        <main class="page-main">
+            <aside class="categories-panel">
+                <h2 class="panel-title">Категории</h2>
+                <div class="categories-list" id="categories-list">
+                </div>
+            </aside>
+
+            <section class="dishes-section">
+                <div class="mobile-category-filter">
+                    <span class="mobile-category-label">Категория</span>
+                    <div class="mobile-category-select-wrapper">
+                        <select id="category-select"></select>
+                    </div>
+                </div>
+
+                <h2 class="panel-title">Меню</h2>
+                <div class="dishes-grid" id="dishes-grid">
+                </div>
+            </section>
+        </main>
+
+        <footer class="bottom-bar">
+            <button class="btn btn-secondary" id="call-waiter-btn">
+                Вызвать официанта
+            </button>
+            <button class="btn btn-primary" id="view-order-btn">
+                Посмотреть заказ
+            </button>
+        </footer>
+    </div>
+
+    <div class="modal-backdrop hidden" id="order-modal-backdrop">
+        <div class="modal" id="order-modal">
+            <div class="modal-header">
+                <h3>Ваш заказ</h3>
+                <button class="modal-close-btn" id="order-modal-close" aria-label="Закрыть">&times;</button>
+            </div>
+            <div class="modal-body" id="order-modal-body">
+            </div>
+            <div class="modal-footer">
+                <div class="order-total">
+                    Итого: <span id="order-total-amount">0 ₽</span>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="order-modal-cancel">
+                        Продолжить выбор
+                    </button>
+                    <button class="btn btn-primary" id="order-modal-submit">
+                        Отправить заказ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="dish-modal-backdrop">
+        <div class="modal" id="dish-modal">
+            <div class="modal-header">
+                <h3 id="dish-modal-title">Блюдо</h3>
+                <button class="modal-close-btn" id="dish-modal-close" aria-label="Закрыть">&times;</button>
+            </div>
+            <div class="modal-body dish-modal-body">
+                <div class="dish-modal-image-wrapper">
+                    <img id="dish-modal-image" alt="" />
+                </div>
+                <div class="dish-modal-price" id="dish-modal-price"></div>
+                <div class="dish-modal-description" id="dish-modal-description"></div>
+                <div class="dish-modal-composition" id="dish-modal-composition"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="dish-modal-close-btn">
+                    Закрыть
+                </button>
+                <button class="btn btn-primary" id="dish-modal-add-btn">
+                    Добавить в заказ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="rating-modal-backdrop">
+        <div class="modal" id="rating-modal">
+            <div class="modal-header">
+                <h3>Оцените визит</h3>
+                <button class="modal-close-btn" id="rating-modal-close">&times;</button>
+            </div>
+            <div class="modal-body rating-modal-body">
+                <p class="rating-modal-text">
+                    Пожалуйста, оцените обслуживание и качество блюд.
+                </p>
+                <div class="rating-stars" id="rating-stars">
+                </div>
+                <textarea id="rating-comment"
+                          class="rating-comment"
+                          rows="3"
+                          placeholder="Оставьте комментарий (по желанию)"></textarea>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="rating-skip-btn">Пропустить</button>
+                    <button class="btn btn-primary" id="rating-submit-btn">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden" aria-live="polite">
+        <div id="toast-message" class="toast-message"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

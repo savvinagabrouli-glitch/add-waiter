@@ -1,0 +1,162 @@
+﻿<UserControl x:Class="Cursework.Wpf.Views.Controls.HallMapZoneControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:Cursework.Wpf.Converters"
+             x:Name="Root">
+
+    <UserControl.Resources>
+        <converters:StatusToRussianConverter x:Key="StatusToRu"/>
+        <converters:TableModelDisplayConverter x:Key="TableModelDisplay"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- Заглушка, если фон не задан (Bar/VIP пока без png) -->
+        <Border x:Name="NoBg"
+                Visibility="Collapsed"
+                Background="{StaticResource Brush.Surface}"
+                BorderBrush="{StaticResource Brush.Border}"
+                BorderThickness="1"
+                CornerRadius="24"
+                Margin="6">
+            <TextBlock Text="Схема зоны пока не задана"
+                       Foreground="{StaticResource Brush.TextMuted}"
+                       FontSize="16"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Border>
+
+        <Border CornerRadius="24" ClipToBounds="True">
+            <!-- Фон зоны -->
+            <Image x:Name="BgImage"
+                   Source="{Binding BackgroundSource, ElementName=Root}"
+                   Stretch="Uniform"
+                   SnapsToDevicePixels="True"/>
+        </Border>
+
+        <!-- Слой столов -->
+        <ListBox ItemsSource="{Binding ItemsSource, ElementName=Root}"
+                 SelectedItem="{Binding SelectedItem, ElementName=Root, Mode=TwoWay}"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled">
+
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas IsItemsHost="True"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <ContentPresenter />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Thumb DragDelta="TableThumb_DragDelta"
+                           PreviewMouseLeftButtonDown="TableThumb_PreviewMouseLeftButtonDown"
+                           PreviewMouseRightButtonDown="TableThumb_PreviewMouseRightButtonDown"
+                           Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}">
+
+                        <!-- ContextMenu: DataContext = стол, по которому кликнули -->
+                        <Thumb.ContextMenu>
+                            <ContextMenu Style="{StaticResource ContextMenu.Modern}"
+                                         DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+
+                                <MenuItem Style="{StaticResource MenuItem.Modern}"
+                                          Header="{Binding TableName, StringFormat=Имя: {0}}"
+                                          IsEnabled="False"/>
+
+                                <MenuItem Style="{StaticResource MenuItem.Modern}"
+                                          Header="{Binding Seats, StringFormat=Мест: {0}}"
+                                          IsEnabled="False"/>
+
+                                <MenuItem Style="{StaticResource MenuItem.Modern}"
+                                          Header="{Binding Status, Converter={StaticResource StatusToRu}, StringFormat=Статус: {0}}"
+                                          IsEnabled="False"/>
+
+                                <MenuItem Style="{StaticResource MenuItem.Modern}" Header="Изменить модель">
+                                    <MenuItem Style="{StaticResource MenuItem.Modern}"
+              Header="Одноместный"
+              Click="SetModelSingle_Click"/>
+                                    <MenuItem Style="{StaticResource MenuItem.Modern}"
+              Header="Многоместный"
+              Click="SetModelMulti_Click"/>
+                                </MenuItem>
+
+
+
+                                <Separator/>
+
+                                <!-- Удаляем только из текущей раскладки (TablesOnMap), не из БД -->
+                                <MenuItem Style="{StaticResource MenuItem.Danger}"
+                                          Header="Удалить стол с карты"
+                                          Command="{Binding PlacementTarget.Tag.RemoveTableFromMapCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}"/>
+                            </ContextMenu>
+                        </Thumb.ContextMenu>
+
+                        <Thumb.Template>
+                            <ControlTemplate TargetType="Thumb">
+                                <Grid Background="Transparent">
+
+                                    <!-- Подсветка выбранного стола -->
+                                    <Border x:Name="Sel"
+                                            Width="56"
+                                            Height="56"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            CornerRadius="16"
+                                            BorderThickness="0"
+                                            BorderBrush="{StaticResource Brush.Accent}"
+                                            Background="Transparent"
+                                            Opacity="0.22"/>
+
+                                    <Image x:Name="Icon"
+                                           Width="50"
+                                           Height="50"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Source="/Assets/Images/single-seats.png"/>
+
+                                </Grid>
+
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Model}" Value="Multi">
+                                        <Setter TargetName="Icon" Property="Width" Value="90"/>
+                                        <Setter TargetName="Icon" Property="Height" Value="90"/>
+                                        <Setter TargetName="Icon" Property="Source" Value="/Assets/Images/multi-seats.png"/>
+                                        <Setter TargetName="Sel" Property="Width" Value="88"/>
+                                        <Setter TargetName="Sel" Property="Height" Value="88"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                        <Setter TargetName="Sel" Property="BorderThickness" Value="2"/>
+                                        <Setter TargetName="Sel" Property="Background" Value="{StaticResource Brush.Accent}"/>
+                                    </DataTrigger>
+
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Sel" Property="BorderThickness" Value="1"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Thumb.Template>
+                    </Thumb>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

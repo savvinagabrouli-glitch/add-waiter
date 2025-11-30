@@ -1,0 +1,128 @@
+﻿<UserControl x:Class="Cursework.Wpf.Views.Controls.TableMultiSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:Cursework.Wpf.Converters">
+
+	<UserControl.Resources>
+
+		<!-- Кнопка в стиле ComboBox.Base -->
+		<Style x:Key="MultiSelectorButton" TargetType="Button">
+			<Setter Property="FontFamily" Value="{StaticResource Font.UI}"/>
+			<Setter Property="Foreground" Value="{StaticResource Brush.Text}"/>
+			<Setter Property="Background" Value="{StaticResource Brush.Surface}"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="MinHeight" Value="50"/>
+			<Setter Property="BorderBrush" Value="{StaticResource Brush.Border}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="Bd"
+                                CornerRadius="{StaticResource Radius.M}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+							<ContentPresenter HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              Margin="0"/>
+						</Border>
+
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsKeyboardFocused" Value="True">
+								<Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Brush.Primary}"/>
+							</Trigger>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Brush.PrimaryHover}"/>
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter Property="Opacity" Value="0.6"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<conv:ZoneToRussianConverter x:Key="ZoneToRussian"/>
+	</UserControl.Resources>
+
+	<Grid>
+		<!-- Кнопка, выглядящая как ComboBox -->
+		<Button x:Name="MainButton"
+                Style="{StaticResource MultiSelectorButton}"
+                Click="MainButton_Click">
+			<Grid Margin="0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<!-- Текст (как SelectionBoxItem у ComboBox) -->
+				<TextBlock x:Name="ButtonText"
+                           Grid.Column="0"
+                           Margin="8,6,4,6"
+                           VerticalAlignment="Center"
+                           Text="Выберите стол"/>
+
+				<!-- Стрелочка справа -->
+				<Path Grid.Column="1"
+                      Margin="0,0,10,0"
+                      Data="M 0 0 L 4 4 L 8 0 Z"
+                      StrokeThickness="1.5"
+                      Stroke="{StaticResource Brush.TextMuted}"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"/>
+			</Grid>
+		</Button>
+
+		<!-- Popup с выбором зоны и стола -->
+		<Popup x:Name="Popup"
+               Placement="Bottom"
+               PlacementTarget="{Binding ElementName=MainButton}"
+               StaysOpen="False"
+               AllowsTransparency="True">
+			<Border Background="{StaticResource Brush.Surface}"
+                    BorderBrush="{StaticResource Brush.Border}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource Radius.M}"
+                    Padding="8"
+                    Width="{Binding ActualWidth, ElementName=MainButton}">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+
+					<!-- Зоны -->
+					<StackPanel Grid.Column="0" Margin="0,0,8,0">
+						<TextBlock Text="Зона"
+                                   Margin="0,0,0,4"
+                                   FontWeight="SemiBold"/>
+						<ListBox x:Name="ZonesList"
+								 SelectionChanged="ZonesList_SelectionChanged">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<!-- value = "MainHall" / "Terrace" / "Bar" / "VIP" -->
+									<TextBlock Text="{Binding Converter={StaticResource ZoneToRussian}}"/>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</StackPanel>
+
+					<!-- Столы выбранной зоны -->
+					<StackPanel Grid.Column="1">
+						<TextBlock Text="Стол"
+                                   Margin="0,0,0,4"
+                                   FontWeight="SemiBold"/>
+						<ListBox x:Name="TablesList"
+                                 DisplayMemberPath="Name"
+                                 MouseDoubleClick="TablesList_MouseDoubleClick"
+                                 SelectionChanged="TablesList_SelectionChanged"/>
+					</StackPanel>
+				</Grid>
+			</Border>
+		</Popup>
+	</Grid>
+</UserControl>

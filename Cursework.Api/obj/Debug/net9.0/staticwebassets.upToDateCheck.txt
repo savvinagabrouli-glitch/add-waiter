@@ -1,0 +1,10 @@
+D:\Project\Cursework.Api\wwwroot\menu\css\styles.css
+D:\Project\Cursework.Api\wwwroot\menu\index.html
+D:\Project\Cursework.Api\wwwroot\menu\js\config.js
+D:\Project\Cursework.Api\wwwroot\menu\img\food-placeholder.svg
+D:\Project\Cursework.Api\wwwroot\menu\js\app.js
+wwwroot\menu\css\styles.css
+wwwroot\menu\img\food-placeholder.svg
+wwwroot\menu\index.html
+wwwroot\menu\js\app.js
+wwwroot\menu\js\config.js

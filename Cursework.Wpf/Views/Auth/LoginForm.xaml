@@ -1,0 +1,67 @@
+﻿<Window x:Class="Cursework.Wpf.Views.Auth.LoginForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Вход"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        Background="{StaticResource Brush.Background}" Icon="/Assets/Icon/login.ico">
+
+    <Grid Margin="24">
+        <Border Style="{StaticResource Card}"
+                MaxWidth="420"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="16"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="16"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Style="{StaticResource H1}"
+                           Text="Вход в систему..."/>
+
+                <StackPanel Grid.Row="2">
+                    <TextBlock Text="Логин"
+                               Style="{StaticResource Caption}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource Brush.Text}"
+                               Margin="2,0,0,6"/>
+                    <TextBox x:Name="txtLogin"
+                             Style="{StaticResource TextBox.Base}"
+                             Width="320"
+                             TabIndex="0"/>
+                </StackPanel>
+
+                <!-- Пароль -->
+                <StackPanel Grid.Row="4">
+                    <TextBlock Text="Пароль"
+                               Style="{StaticResource Caption}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource Brush.Text}"
+                               Margin="2,0,0,6"/>
+                    <PasswordBox x:Name="pwdPassword"
+                                 Style="{StaticResource PasswordBox.Base}"
+                                 Width="320"
+                                 TabIndex="1"/>
+                </StackPanel>
+
+                <Button x:Name="btnLogin"
+                        Grid.Row="6"
+                        Content="Войти"
+                        Style="{StaticResource Button.Base}"
+                        Width="320"
+                        Height="36"
+                        IsDefault="True"
+                        TabIndex="2"
+						Click="btnLogin_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

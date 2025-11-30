@@ -1,0 +1,191 @@
+﻿<Window x:Class="Cursework.Wpf.Views.Dialogs.DishCompositionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Cursework.Wpf.Views.Dialogs"
+        Title="Состав блюда"
+        Width="720" Height="540"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="ToolWindow"
+        Background="{StaticResource Brush.Background}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Theme.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+            <!-- конвертеры -->
+            <local:AddOneConverter x:Key="AddOne"/>
+            <local:UnitCodeToRuConverter x:Key="UnitToRu"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0"
+                   Text="{Binding HeaderText}"
+                   Style="{StaticResource H2}"
+                   Margin="0,0,0,12"/>
+
+        <!-- Карточка со списком ингредиентов -->
+        <Border Grid.Row="1"
+                Style="{StaticResource Card}"
+                MinWidth="520"
+                Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Список ингредиентов -->
+                <ScrollViewer Grid.Row="0"
+                              VerticalScrollBarVisibility="Auto"
+                              CanContentScroll="True">
+                    <Border Padding="16,12,16,16">
+                        <ItemsControl ItemsSource="{Binding Rows}"
+                                  AlternationCount="1000">
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Margin" Value="0,0,0,8"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource IngredientCard}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Заголовок карточки с номером (с 1) -->
+                                            <StackPanel Grid.Row="0"
+                                                    Grid.Column="0"
+                                                    Orientation="Horizontal"
+                                                    Margin="0,0,8,8">
+                                                <Border Style="{StaticResource BadgeBorder}">
+                                                    <TextBlock>
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="Ингредиент {0}">
+                                                                <Binding RelativeSource="{RelativeSource AncestorType=ContentPresenter}"
+                                                                     Path="(ItemsControl.AlternationIndex)"
+                                                                     Converter="{StaticResource AddOne}"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </Border>
+                                            </StackPanel>
+
+                                            <!-- Поля ингредиента -->
+                                            <Grid Grid.Row="1"
+                                              Grid.ColumnSpan="2"
+                                              Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="2.2*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Название (ингредиент) -->
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Название"
+                                                           Style="{StaticResource FieldLabel}"/>
+                                                    <ComboBox 
+                                                          ItemsSource="{Binding DataContext.AllIngredients,
+                                                          RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          SelectedValuePath="Id"
+                                                          Height="50"
+                                                          SelectedValue="{Binding IngredientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          DisplayMemberPath="Name"
+                                                          Style="{StaticResource ComboBox.Base}"/>
+                                                </StackPanel>
+
+                                                <!-- Количество -->
+                                                <StackPanel Grid.Column="1"
+                                                        Margin="8,0,0,0">
+                                                    <TextBlock Text="Кол-во"
+                                                           Style="{StaticResource FieldLabel}"/>
+                                                    <TextBox Text="{Binding Quantity,
+                                                         Mode=TwoWay,
+                                                         UpdateSourceTrigger=PropertyChanged,
+                                                         StringFormat=F2}"
+                                                         Style="{StaticResource TextBox.Base}"/>
+                                                </StackPanel>
+
+                                                <!-- Единица измерения (ComboBox с конвертором) -->
+                                                <StackPanel Grid.Column="2"
+                                                        Margin="8,0,0,0">
+                                                    <TextBlock Text="Ед. изм."
+                                                           Style="{StaticResource FieldLabel}"/>
+                                                    <ComboBox ItemsSource="{Binding DataContext.UnitCodes,
+                                                          RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          Height="50"
+                                                          SelectedValue="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          Style="{StaticResource ComboBox.Base}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Converter={StaticResource UnitToRu}}"/>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Кнопка удаления (снизу) -->
+                                            <StackPanel Grid.Row="2" Grid.ColumnSpan="2"
+                                                    Orientation="Horizontal"
+                                                    HorizontalAlignment="Right">
+                                                <Button Content="Удалить"
+                                                    Style="{StaticResource Button.Danger}"
+                                                    Padding="10,4"
+                                                    FontSize="12"
+                                                    Command="{Binding DataContext.RemoveRowCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- Кнопки (добавить слева от Отмена) -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Content="Добавить ингредиент"
+                    Style="{StaticResource Button.Outline}"
+                    Padding="12,6"
+                    Margin="0,0,12,0"
+                    FontSize="12"
+                    Command="{Binding AddRowCommand}"/>
+            <Button Content="Отмена"
+                    Width="100"
+                    Margin="0,0,8,0"
+                    FontSize="12"
+                    Style="{StaticResource Button.Outline}"
+                    Click="Cancel_Click"/>
+            <Button Content="Сохранить"
+                    Width="110"
+                    FontSize="12"
+                    Style="{StaticResource Button.Base}"
+                    Click="Ok_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,299 @@
+﻿<Window x:Class="Cursework.Wpf.Views.Dialogs.OrderDetailsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:Cursework.Wpf.Converters"
+        xmlns:vm="clr-namespace:Cursework.Wpf.ViewModels.Admin"
+        Title="Детали заказа"
+        Width="1000"
+        Height="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        WindowStyle="SingleBorderWindow"
+        Background="{StaticResource Brush.Background}">
+
+    <Window.Resources>
+        <conv:OrderItemStatusToRussianConverter x:Key="OrderItemStatusToRussianConverter"/>
+        <conv:PaymentMethodToRussianConverter x:Key="PaymentMethodToRussianConverter"/>
+        <conv:OrderStatusToRussianConverter x:Key="OrderStatusToRussianConverter"/>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Border Style="{StaticResource Card}"
+                Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Заголовок окна -->
+                    <RowDefinition Height="*"/>
+                    <!-- Описание + гости + оплата -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Кнопки -->
+                </Grid.RowDefinitions>
+
+                <!-- Заголовок -->
+                <StackPanel Grid.Row="0"
+                            Orientation="Vertical"
+                            Margin="0,0,0,16">
+                    <TextBlock Text="Детали заказа"
+                               Style="{StaticResource H1}"/>
+                    <TextBlock>
+                        <Run Text="Заказ #" FontSize="14"/>
+                        <Run Text="{Binding OrderId}" FontSize="14"/>
+                        <Run Text=" · Стол: " FontSize="14"/>
+                        <Run Text="{Binding TableName}" FontSize="14"/>
+                        <Run Text=" · Статус: " FontSize="14"/>
+                        <Run Text="{Binding OrderStatus, Converter={StaticResource OrderStatusToRussianConverter}}" FontSize="14"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Основной блок: описание заказа + гости + оплата -->
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Заголовок "Описание заказа" -->
+                        <RowDefinition Height="*"/>
+                        <!-- Список гостей (скролл) -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Карточка "Оплата" -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Заголовок блока -->
+                    <TextBlock Grid.Row="0"
+                               Text="Описание заказа"
+                               Style="{StaticResource H2}"
+                               Margin="0,0,0,8"/>
+
+                    <!-- Список гостей со скроллом -->
+                    <ScrollViewer Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Margin="0,0,0,12">
+                        <ItemsControl ItemsSource="{Binding Guests}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:OrderGuestViewModel}">
+                                    <Border Style="{StaticResource Card}"
+                                            Margin="0,0,0,12"
+                                            Padding="12">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <!-- Заголовок гостя -->
+                                                <RowDefinition Height="*"/>
+                                                <!-- Позиции -->
+                                                <RowDefinition Height="Auto"/>
+                                                <!-- Кнопки гостя -->
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Заголовок гостя -->
+                                            <TextBlock Grid.Row="0"
+                                                       Text="{Binding Header}"
+                                                       Style="{StaticResource H3}"
+                                                       Margin="0,0,0,8"/>
+
+                                            <!-- Позиции гостя -->
+                                            <ItemsControl Grid.Row="1"
+                                                          ItemsSource="{Binding Items}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type vm:OrderItemViewModel}">
+                                                        <Border Margin="0,0,0,8"
+                                                                Padding="8"
+                                                                Background="{StaticResource Brush.SurfaceAlt}"
+                                                                CornerRadius="{StaticResource Radius.L}">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="3*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="2*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <!-- Блюдо -->
+                                                                <ComboBox Grid.Row="0"
+                                                                          Grid.Column="0"
+                                                                          ItemsSource="{Binding DataContext.Dishes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                          SelectedItem="{Binding SelectedDish, Mode=TwoWay}"
+                                                                          DisplayMemberPath="Name"
+                                                                          Style="{StaticResource ComboBox.Base}"
+                                                                          MinWidth="220"/>
+
+                                                                <!-- Количество -->
+                                                                <StackPanel Grid.Row="0"
+                                                                            Grid.Column="1"
+                                                                            Orientation="Vertical"
+                                                                            Margin="8,0,0,0">
+                                                                    <TextBlock Text="Кол-во"
+                                                                               Style="{StaticResource Caption}"/>
+                                                                    <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
+                                                                             Style="{StaticResource TextBox.Base}"
+                                                                             Width="60"
+                                                                             HorizontalContentAlignment="Right"/>
+                                                                </StackPanel>
+
+                                                                <!-- Сумма (read-only TextBox) -->
+                                                                <StackPanel Grid.Row="0"
+                                                                            Grid.Column="2"
+                                                                            Orientation="Vertical"
+                                                                            Margin="8,0,0,0">
+                                                                    <TextBlock Text="Сумма"
+                                                                               Style="{StaticResource Caption}"/>
+                                                                    <TextBox Text="{Binding Price, StringFormat={}{0:0.00}}"
+                                                                             Style="{StaticResource TextBox.Base}"
+                                                                             IsReadOnly="True"
+                                                                             MinWidth="80"
+                                                                             HorizontalContentAlignment="Right"/>
+                                                                </StackPanel>
+
+                                                                <!-- Статус -->
+                                                                <StackPanel Grid.Row="0"
+                                                                            Grid.Column="3"
+                                                                            Orientation="Vertical"
+                                                                            Margin="8,0,0,0">
+                                                                    <TextBlock Text="Статус"
+                                                                               Style="{StaticResource Caption}"/>
+                                                                    <ComboBox ItemsSource="{Binding DataContext.StatusCodes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                              SelectedItem="{Binding Status, Mode=TwoWay}"
+                                                                              Style="{StaticResource ComboBox.Base}"
+                                                                              MinWidth="130">
+                                                                        <ComboBox.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <TextBlock Text="{Binding Converter={StaticResource OrderItemStatusToRussianConverter}}"/>
+                                                                            </DataTemplate>
+                                                                        </ComboBox.ItemTemplate>
+                                                                    </ComboBox>
+                                                                </StackPanel>
+
+                                                                <!-- Кнопка удалить -->
+                                                                <Button Grid.Row="0"
+                                                                        Grid.Column="4"
+                                                                        Content="✕"
+                                                                        Margin="8,0,0,0"
+                                                                        Width="32"
+                                                                        Height="32"
+                                                                        Style="{StaticResource Button.Outline}"
+                                                                        Foreground="{StaticResource Brush.Danger}"
+                                                                        BorderBrush="{StaticResource Brush.Danger}"
+                                                                        ToolTip="Удалить блюдо"
+                                                                        Command="{Binding DataContext.RemoveDishCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        CommandParameter="{Binding}"/>
+
+                                                                <!-- Заметки -->
+                                                                <StackPanel Grid.Row="1"
+                                                                            Grid.Column="0"
+                                                                            Grid.ColumnSpan="5"
+                                                                            Orientation="Vertical"
+                                                                            Margin="0,8,0,0">
+                                                                    <TextBlock Text="Заметки"
+                                                                               Style="{StaticResource Caption}"/>
+                                                                    <TextBox Text="{Binding Notes}"
+                                                                             Style="{StaticResource TextBox.Base}"/>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- Кнопки под списком блюд гостя -->
+                                            <StackPanel Grid.Row="2"
+                                                        Orientation="Horizontal"
+                                                        HorizontalAlignment="Right"
+                                                        Margin="0,8,0,0">
+                                                <Button Content="Добавить блюдо"
+                                                        FontSize="14"
+                                                        Style="{StaticResource Button.Outline}"
+                                                        Command="{Binding DataContext.AddDishCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Блок "Оплата" -->
+                    <Border Grid.Row="2"
+                            Style="{StaticResource Card}"
+                            Padding="12"
+                            Margin="0,0,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Метод оплаты -->
+                            <StackPanel Grid.Column="0"
+                                        Orientation="Vertical"
+                                        Margin="0,0,16,0">
+                                <TextBlock Text="Оплата"
+                                           Style="{StaticResource H3}"
+                                           Margin="0,0,0,4"/>
+                                <ComboBox ItemsSource="{Binding PaymentMethods}"
+                                          SelectedItem="{Binding Payment.Method, Mode=TwoWay}"
+                                          Style="{StaticResource ComboBox.Base}"
+                                          MinWidth="160">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource PaymentMethodToRussianConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Сумма заказа (read-only TextBox) -->
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Vertical"
+                                        Margin="0,0,16,0">
+                                <TextBlock Text="Сумма заказа"
+                                           Style="{StaticResource Caption}"/>
+                                <TextBox Text="{Binding TotalAmount, StringFormat={}{0:0.00}}"
+                                         Style="{StaticResource TextBox.Base}"
+                                         IsReadOnly="True"
+                                         MinWidth="100"
+                                         HorizontalContentAlignment="Right"/>
+                            </StackPanel>
+
+                            <!-- Дата оплаты (редактируемый TextBox) -->
+                            <StackPanel Grid.Column="2"
+                                        Orientation="Vertical">
+                                <TextBlock Text="Дата оплаты"
+                                           Style="{StaticResource Caption}"/>
+                                <TextBox Text="{Binding Payment.PaidAtText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource TextBox.Base}"
+                                         MinWidth="140"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Кнопки диалога -->
+                <StackPanel Grid.Row="2"
+                            Margin="0,10,0,0"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button Content="Показать чек"
+                            Style="{StaticResource Button.Outline}"
+                            Margin="0,0,8,0"
+                            FontSize="14"
+                            Command="{Binding ShowReceiptCommand}"/>
+                    <Button Content="Отменить"
+                            Style="{StaticResource Button.Outline}"
+                            Margin="0,0,8,0"
+                            FontSize="14"
+                            Command="{Binding CancelCommand}"/>
+                    <Button Content="Сохранить"
+                            FontSize="14"
+                            Style="{StaticResource Button.Base}"
+                            Command="{Binding SaveCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

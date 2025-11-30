@@ -1,0 +1,409 @@
+﻿<UserControl x:Class="Cursework.Wpf.Views.Tabs.HallTablesTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:conv="clr-namespace:Cursework.Wpf.Converters">
+
+    <UserControl.Resources>
+        <conv:BooleanNegationConverter x:Key="Not"/>
+        <conv:StatusToRussianConverter x:Key="StatusToRu"/>
+        <conv:ZoneToRussianConverter   x:Key="ZoneToRu"/>
+
+        <x:Array x:Key="StatusList" Type="{x:Type sys:String}">
+            <sys:String>Free</sys:String>
+            <sys:String>Occupied</sys:String>
+            <sys:String>Reserved</sys:String>
+            <sys:String>Cleaning</sys:String>
+            <sys:String>OutOfService</sys:String>
+        </x:Array>
+
+        <x:Array x:Key="ZoneList" Type="{x:Type sys:String}">
+            <sys:String>MainHall</sys:String>
+            <sys:String>Terrace</sys:String>
+            <sys:String>VIP</sys:String>
+            <sys:String>Bar</sys:String>
+        </x:Array>
+
+        <x:Array x:Key="StatusFilterList" Type="{x:Type sys:String}">
+            <sys:String>Все</sys:String>
+            <sys:String>Free</sys:String>
+            <sys:String>Occupied</sys:String>
+            <sys:String>Reserved</sys:String>
+            <sys:String>Cleaning</sys:String>
+            <sys:String>OutOfService</sys:String>
+        </x:Array>
+
+        <x:Array x:Key="ZoneFilterList" Type="{x:Type sys:String}">
+            <sys:String>Все</sys:String>
+            <sys:String>MainHall</sys:String>
+            <sys:String>Terrace</sys:String>
+            <sys:String>VIP</sys:String>
+            <sys:String>Bar</sys:String>
+        </x:Array>
+
+        <DataTemplate x:Key="TableCardTemplate">
+            <Border Margin="0,0,12,12"
+            Style="{StaticResource TableCardBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Имя стола -->
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="{Binding Name}"
+                       Style="{StaticResource H3}"
+                       Margin="0,0,0,2"/>
+
+                    <!-- Зона -->
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                       Text="{Binding Zone, Converter={StaticResource ZoneToRu}}"
+                       Style="{StaticResource Caption}"
+                       Opacity="0.7"/>
+
+                    <!-- Бейдж с количеством мест + иконка стула -->
+                    <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                Orientation="Horizontal"
+                                Margin="8,0,0,0"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top">
+
+                        <!-- Кружок с числом мест -->
+                        <Border Width="32" Height="32"
+                                CornerRadius="16"
+                                Background="{StaticResource Brush.SurfaceAlt}"
+                                BorderBrush="{StaticResource Brush.Border}"
+                                BorderThickness="1">
+                            <TextBlock Text="{Binding Seats}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontWeight="SemiBold"/>
+                        </Border>
+
+                        <!-- Иконка стула -->
+                        <Image Width="18" Height="18"
+                               Margin="4,7,0,0"
+                               Source="/Assets/Icon/chair.ico"
+                               SnapsToDevicePixels="True"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </StackPanel>
+
+
+                    <!-- Статус (плашка на всю ширину) -->
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" Margin="0,8,0,0">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource BadgeBorder}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Status}" Value="Free">
+                                        <Setter Property="Background"     Value="{StaticResource Brush.StatusBg.Free}"/>
+                                        <Setter Property="BorderBrush"    Value="{StaticResource Brush.Status.Free}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="Occupied">
+                                        <Setter Property="Background"     Value="{StaticResource Brush.StatusBg.Occupied}"/>
+                                        <Setter Property="BorderBrush"    Value="{StaticResource Brush.Status.Occupied}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="Reserved">
+                                        <Setter Property="Background"     Value="{StaticResource Brush.StatusBg.Reserved}"/>
+                                        <Setter Property="BorderBrush"    Value="{StaticResource Brush.Status.Reserved}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="Cleaning">
+                                        <Setter Property="Background"     Value="{StaticResource Brush.StatusBg.Cleaning}"/>
+                                        <Setter Property="BorderBrush"    Value="{StaticResource Brush.Status.Cleaning}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="OutOfService">
+                                        <Setter Property="Background"     Value="{StaticResource Brush.StatusBg.OutOfService}"/>
+                                        <Setter Property="BorderBrush"    Value="{StaticResource Brush.Status.OutOfService}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <TextBlock Text="{Binding Status, Converter={StaticResource StatusToRu}}"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+
+        <Style x:Key="TileItemContainerStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment"   Value="Top"/>
+            <Setter Property="Focusable" Value="True"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource Brush.Background}" Margin="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="360"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Фильтры"
+                   Style="{StaticResource H2}"
+                   Margin="0,0,0,8"/>
+
+                <TextBlock Text="Зона"
+                   Margin="0,0,0,6"/>
+                <ComboBox ItemsSource="{StaticResource ZoneFilterList}"
+                  SelectedItem="{Binding FilterZone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Style="{StaticResource ComboBox.Base}"
+                  Margin="0,0,0,8"
+                  Height="50">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource ZoneToRu}}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Text="Статус"
+                   Margin="0,8,0,6"/>
+                <ComboBox ItemsSource="{StaticResource StatusFilterList}"
+                  SelectedItem="{Binding FilterStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Style="{StaticResource ComboBox.Base}"
+                  Margin="0,0,0,8"
+                  Height="50">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource StatusToRu}}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Text="Поиск"
+                   Style="{StaticResource H2}"
+                   Margin="0,16,0,8"/>
+
+                <TextBlock Text="Название"
+                   Margin="0,0,0,6"/>
+                <TextBox Text="{Binding FilterName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 Style="{StaticResource TextBox.Base}"
+                 Margin="0,0,0,8"/>
+
+                <TextBlock Text="Мест (пример: 2 или 2-5)"
+                   Margin="0,8,0,6"/>
+                <TextBox Text="{Binding FilterSeatsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 Style="{StaticResource TextBox.Base}"/>
+
+                <TextBlock Text="{Binding FilteredCount, StringFormat=Найдено: {0}}"
+                           Margin="0,8,0,0"
+                           Foreground="{StaticResource Brush.TextMuted}"/>
+            </StackPanel>
+        </Border>
+
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal"
+                        Margin="0,0,0,12"
+                        Grid.Row="0">
+                <Button Content="Добавить стол"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding AddCommand}"
+                        IsEnabled="{Binding CanAdd}"
+                        FontSize="14" Padding="16,10"/>
+
+                <Button Content="Редактировать"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding EditCommand}"
+                        IsEnabled="{Binding CanEdit}"
+                        FontSize="14" Padding="16,10"
+                        Margin="8,0,0,0"/>
+
+                <Button Content="Удалить стол"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding DeleteCommand}"
+                        IsEnabled="{Binding CanDelete}"
+                        FontSize="14" Padding="16,10"
+                        Margin="8,0,0,0"/>
+
+                <Separator Width="12" Opacity="0"/>
+
+                <Button Content="Карта зала"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding OpenHallMapCommand}"
+                        FontSize="14" Padding="16,10"
+                        Margin="8,0,0,0"/>
+
+                <Button Content="Модели столов"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding OpenModelsCommand}"
+                        FontSize="14" Padding="16,10"
+                        Margin="8,0,0,0"/>
+
+                <Button Content="Показать QR-код"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding ShowQrCommand}"
+                        FontSize="14" Padding="16,10"
+                        Margin="8,0,0,0"/>
+            </StackPanel>
+
+
+            <Border Grid.Row="1" Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Style="{StaticResource Caption}"
+                               Margin="0,0,0,8"
+                               Text="{Binding TotalCount, Mode=OneWay, StringFormat=Всего столов: {0}}"/>
+
+                    <ListBox x:Name="TileList"
+                             Grid.Row="1"
+                             ItemsSource="{Binding TablesView}"
+                             SelectedItem="{Binding Selected, Mode=TwoWay}"
+                             BorderThickness="0"
+                             ScrollViewer.CanContentScroll="False"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ItemTemplate="{StaticResource TableCardTemplate}"
+                             ItemContainerStyle="{StaticResource TileItemContainerStyle}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True"
+                                           Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Column="4" Style="{StaticResource Card}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Форма стола"
+                           Style="{StaticResource H2}"
+                           Margin="0,0,0,12"/>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Название"
+                               Grid.Row="0" Grid.Column="0"
+                               Margin="0,0,8,8"
+                               VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding EditItem.Name, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Row="0" Grid.Column="1"
+                             Style="{StaticResource TextBox.Base}"
+                             Margin="0,0,0,8"
+                             IsReadOnly="{Binding IsEditingGrid, Converter={StaticResource Not}}"/>
+
+                    <TextBlock Text="Мест"
+                               Grid.Row="1" Grid.Column="0"
+                               Margin="0,0,8,8"
+                               VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding EditItem.Seats, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Row="1" Grid.Column="1"
+                             Style="{StaticResource TextBox.Base}"
+                             Margin="0,0,0,8"
+                             IsReadOnly="{Binding IsEditingGrid, Converter={StaticResource Not}}"/>
+
+                    <TextBlock Text="Зона"
+                               Grid.Row="2" Grid.Column="0"
+                               Margin="0,0,8,8"
+                               VerticalAlignment="Center"/>
+
+                    <ComboBox Grid.Row="2" Grid.Column="1"
+                              ItemsSource="{StaticResource ZoneList}"
+                              SelectedItem="{Binding EditItem.Zone, Mode=TwoWay}"
+                              Style="{StaticResource ComboBox.Base}"
+                              Margin="0,0,0,8"
+                              Height="50"
+                              IsEnabled="{Binding IsEditingGrid}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource ZoneToRu}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Text="Статус"
+                               Grid.Row="3" Grid.Column="0"
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"/>
+
+                    <ComboBox Grid.Row="3" Grid.Column="1"
+                              ItemsSource="{StaticResource StatusList}"
+                              SelectedItem="{Binding EditItem.Status, Mode=TwoWay}"
+                              Style="{StaticResource ComboBox.Base}"
+                              Height="50"
+                              IsEnabled="{Binding IsEditingGrid}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource StatusToRu}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </Grid>
+
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,12,0,0">
+                    <Button Content="Отменить"
+                            Style="{StaticResource Button.Outline}"
+                            Command="{Binding CancelCommand}"
+                            IsEnabled="{Binding CanCancel}"
+                            FontSize="14" Padding="16,10"/>
+                    <Button Content="Сохранить"
+                            Style="{StaticResource Button.Outline}"
+                            Command="{Binding SaveCommand}"
+                            IsEnabled="{Binding CanSave}"
+                            FontSize="14" Padding="16,10"
+                            Margin="8,0,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

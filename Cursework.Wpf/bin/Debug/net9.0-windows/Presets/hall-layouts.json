@@ -1,0 +1,61 @@
+{
+  "presets": [
+    {
+      "id": "MainHall_Default",
+      "name": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0439",
+      "zone": "MainHall",
+      "isActive": false,
+      "tables": [
+        {
+          "tableId": 1,
+          "zone": "MainHall",
+          "x": 628.5082774888434,
+          "y": 260.28774342910486,
+          "modelType": "Multi"
+        },
+        {
+          "tableId": 11,
+          "zone": "MainHall",
+          "x": 495.82483026215374,
+          "y": 332.19422603988477,
+          "modelType": "Single"
+        }
+      ]
+    },
+    {
+      "id": "Terrace_Default",
+      "name": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0439",
+      "zone": "Terrace",
+      "isActive": true,
+      "tables": []
+    },
+    {
+      "id": "d580202b2f344c85ae2a6e35725298de",
+      "name": "\u0411\u0430\u043D\u043A\u0435\u0442 (MainHall)",
+      "zone": "MainHall",
+      "isActive": false,
+      "tables": []
+    },
+    {
+      "id": "Bar_Default",
+      "name": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0439",
+      "zone": "Bar",
+      "isActive": true,
+      "tables": []
+    },
+    {
+      "id": "VIP_Default",
+      "name": "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0439",
+      "zone": "VIP",
+      "isActive": true,
+      "tables": []
+    },
+    {
+      "id": "b538ce1e345e46998d8a5b1b37657651",
+      "name": "fdsfsd",
+      "zone": "MainHall",
+      "isActive": false,
+      "tables": []
+    }
+  ]
+}

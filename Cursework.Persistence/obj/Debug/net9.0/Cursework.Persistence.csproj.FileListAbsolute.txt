@@ -1,0 +1,17 @@
+D:\Project\Cursework.Persistence\bin\Debug\net9.0\Cursework.Persistence.deps.json
+D:\Project\Cursework.Persistence\bin\Debug\net9.0\Cursework.Persistence.runtimeconfig.json
+D:\Project\Cursework.Persistence\bin\Debug\net9.0\Cursework.Persistence.dll
+D:\Project\Cursework.Persistence\bin\Debug\net9.0\Cursework.Persistence.pdb
+D:\Project\Cursework.Persistence\bin\Debug\net9.0\Cursework.Domain.dll
+D:\Project\Cursework.Persistence\bin\Debug\net9.0\Cursework.Domain.pdb
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursework.Persistence.csproj.AssemblyReference.cache
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursework.Persistence.GeneratedMSBuildEditorConfig.editorconfig
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursework.Persistence.AssemblyInfoInputs.cache
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursework.Persistence.AssemblyInfo.cs
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursework.Persistence.csproj.CoreCompileInputs.cache
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursewor.940A7FE7.Up2Date
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursework.Persistence.dll
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\refint\Cursework.Persistence.dll
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursework.Persistence.pdb
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\Cursework.Persistence.genruntimeconfig.cache
+D:\Project\Cursework.Persistence\obj\Debug\net9.0\ref\Cursework.Persistence.dll

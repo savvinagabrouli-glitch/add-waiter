@@ -1,0 +1,313 @@
+﻿<Window x:Class="Cursework.Wpf.Views.Dialogs.HallMapDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Cursework.Wpf.Views.Controls"
+        Title="Карта зала"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="{StaticResource Brush.Background}">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="380"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="Карта зала" Style="{StaticResource H1}"/>
+                <TextBlock Text="{Binding SelectedZoneTitle}"
+                           Margin="0,4,0,0"
+                           Foreground="{StaticResource Brush.TextMuted}"/>
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="✕"
+                    Width="44"
+                    Height="44"
+                    Style="{StaticResource Button.Outline}"
+                    Click="CloseButton_Click"/>
+        </Grid>
+
+        <!-- LEFT -->
+        <Border Grid.Row="2" Grid.Column="0"
+                Background="{StaticResource Brush.Surface}"
+                BorderBrush="{StaticResource Brush.Border}"
+                BorderThickness="1"
+                CornerRadius="24"
+                Padding="16">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Zone -->
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="Зона" Style="{StaticResource H3}"/>
+                    <ComboBox Margin="0,10,0,0"
+                              ItemsSource="{Binding Zones}"
+                              SelectedValuePath="Code"
+                              DisplayMemberPath="Display"
+                              SelectedValue="{Binding SelectedZone}"
+                              Style="{StaticResource ComboBox.Base}"/>
+                </StackPanel>
+
+                <!-- Preset -->
+                <StackPanel Grid.Row="2">
+                    <TextBlock Text="Пресет раскладки" Style="{StaticResource H3}"/>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox ItemsSource="{Binding Presets}"
+                                  SelectedItem="{Binding SelectedPreset}"
+                                  DisplayMemberPath="Name"
+                                  Style="{StaticResource ComboBox.Base}"/>
+
+                        <Button Grid.Column="2"
+                                Content="Загрузить"
+                                Padding="14,8"
+                                Style="{StaticResource Button.Outline}"
+                                Command="{Binding LoadPresetCommand}"/>
+
+                        <Button Grid.Column="4"
+                                Content="Сделать активным"
+                                Padding="14,8"
+                                Style="{StaticResource Button.Outline}"
+                                Command="{Binding SetActivePresetCommand}"/>
+                    </Grid>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Создать"
+                                Style="{StaticResource Button.Outline}"
+                                Command="{Binding CreatePresetCommand}"/>
+
+                        <Button Grid.Column="2"
+                                Content="Удалить"
+                                Style="{StaticResource Button.Danger}"
+                                Command="{Binding DeletePresetCommand}"/>
+                    </Grid>
+
+                    <Button Margin="0,10,0,0"
+                            Content="Сохранить"
+                            Style="{StaticResource Button.Outline}"
+                            Command="{Binding SavePresetCommand}"/>
+                </StackPanel>
+
+                <!-- Tables -->
+                <StackPanel Grid.Row="4">
+                    <TextBlock Text="Столы (в БД)" Style="{StaticResource H3}"/>
+                    <TextBlock Text="Выбери стол и добавь его на карту."
+                               Margin="0,6,0,8"
+                               Foreground="{StaticResource Brush.TextMuted}"/>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <ListBox Grid.Row="0"
+                                 ItemsSource="{Binding AvailableTables}"
+                                 SelectedItem="{Binding SelectedAvailableTable}"
+                                 Background="Transparent"
+                                 BorderThickness="0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                        <TextBlock Text="{Binding Name}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="(" Foreground="{StaticResource Brush.TextMuted}"/>
+                                        <TextBlock Text="{Binding Seats}" Foreground="{StaticResource Brush.TextMuted}"/>
+                                        <TextBlock Text=" мест)" Foreground="{StaticResource Brush.TextMuted}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <Button Grid.Row="2"
+                                Content="Добавить на карту"
+                                Style="{StaticResource Button.Outline}"
+                                Command="{Binding AddTableToMapCommand}"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Hint -->
+                <StackPanel Grid.Row="6">
+                    <TextBlock Text="Подсказка" Style="{StaticResource H3}"/>
+                    <TextBlock Margin="0,6,0,0"
+                               Foreground="{StaticResource Brush.TextMuted}"
+                               TextWrapping="Wrap"
+                               Text="ЛКМ — выбор стола. Перетаскивание — изменить координаты X/Y в текущей модели. ПКМ — меню. «Удалить с карты» удаляет только из текущей раскладки (локально), без удаления из БД."/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAP -->
+        <Border Grid.Row="2" Grid.Column="2"
+                Background="{StaticResource Brush.Surface}"
+                BorderBrush="{StaticResource Brush.Border}"
+                BorderThickness="1"
+                CornerRadius="24"
+                Padding="16">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Zoom -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Масштаб" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Slider x:Name="ZoomSlider"
+                            Width="240"
+                            Minimum="0.6"
+                            Maximum="2.5"
+                            Value="{Binding Zoom}"
+                            ValueChanged="ZoomSlider_ValueChanged"/>
+                    <TextBlock Text="{Binding Zoom, StringFormat={}{0:F2}x}"
+                               Margin="10,0,0,0"
+                               Foreground="{StaticResource Brush.TextMuted}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <ScrollViewer x:Name="MapScroll"
+                              Grid.Row="2"
+                              PreviewMouseWheel="MapScroll_PreviewMouseWheel"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              Background="Transparent">
+
+                    <Grid MinWidth="900"
+                          MinHeight="650"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          RenderTransformOrigin="0.5,0.5">
+
+                        <Grid.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding Zoom}"
+                                            ScaleY="{Binding Zoom}"/>
+                        </Grid.LayoutTransform>
+
+                        <!-- Switch zones -->
+                        <Grid>
+
+                            <!-- MainHall -->
+                            <Grid>
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedZone}" Value="MainHall">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+
+                                <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/main-hall.png"
+                                                             ItemsSource="{Binding TablesOnMap}"
+                                                             SelectedItem="{Binding SelectedTableOnMap, Mode=TwoWay}"
+                                                             Zoom="{Binding Zoom}"
+                                                             IsDragEnabled="{Binding IsAdminMode}"/>
+                            </Grid>
+
+                            <!-- Terrace -->
+                            <Grid>
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedZone}" Value="Terrace">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+
+                                <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
+                                                             ItemsSource="{Binding TablesOnMap}"
+                                                             SelectedItem="{Binding SelectedTableOnMap, Mode=TwoWay}"
+                                                             Zoom="{Binding Zoom}"
+                                                             IsDragEnabled="{Binding IsAdminMode}"/>
+                            </Grid>
+
+                            <!-- Bar -->
+                            <Grid>
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedZone}" Value="Bar">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+
+                                <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
+                                                             ItemsSource="{Binding TablesOnMap}"
+                                                             SelectedItem="{Binding SelectedTableOnMap, Mode=TwoWay}"
+                                                             Zoom="{Binding Zoom}"
+                                                             IsDragEnabled="{Binding IsAdminMode}"/>
+                            </Grid>
+
+                            <!-- VIP -->
+                            <Grid>
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedZone}" Value="VIP">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+
+                                <controls:HallMapZoneControl BackgroundSource="/Assets/Images/Halls/terrace.png"
+                                                             ItemsSource="{Binding TablesOnMap}"
+                                                             SelectedItem="{Binding SelectedTableOnMap, Mode=TwoWay}"
+                                                             Zoom="{Binding Zoom}"
+                                                             IsDragEnabled="{Binding IsAdminMode}"/>
+                            </Grid>
+
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,71 @@
+﻿<Window x:Class="Cursework.Wpf.Views.Dialogs.TableQrWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding Title}"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        AllowsTransparency="True"
+        ShowInTaskbar="False"
+        WindowStyle="None">
+
+	<Border Margin="16"
+            Style="{StaticResource Card}">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+
+			<!-- Заголовок + крестик -->
+			<DockPanel Grid.Row="0" LastChildFill="False">
+				<TextBlock Text="{Binding Title}"
+                           Style="{StaticResource H2}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"
+                           DockPanel.Dock="Left"/>
+
+				<Button Content="✕"
+                        Width="28"
+                        Height="28"
+                        Margin="120,0,0,0"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding CloseCommand}"/>
+			</DockPanel>
+
+			<!-- QR-картинка -->
+			<Border Grid.Row="1"
+                    Margin="0,12,0,16"
+                    Background="{StaticResource Brush.SurfaceAlt}"
+                    CornerRadius="{StaticResource Radius.M}"
+                    Padding="16">
+				<Image Source="{Binding QrImage}"
+                       Width="260"
+                       Height="260"
+                       Stretch="Uniform"/>
+			</Border>
+
+			<!-- Кнопки -->
+			<StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,0,4">
+				<Button Content="Сохранить"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding SaveCommand}"
+                        Margin="0,0,8,0"/>
+
+				<Button Content="Распечатать"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding PrintCommand}"
+                        Margin="0,0,8,0"/>
+
+				<Button Content="Закрыть"
+                        Style="{StaticResource Button.Outline}"
+                        Command="{Binding CloseCommand}"/>
+			</StackPanel>
+		</Grid>
+	</Border>
+</Window>

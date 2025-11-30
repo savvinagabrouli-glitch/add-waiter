@@ -1,0 +1,60 @@
+﻿<Window x:Class="Cursework.Wpf.Views.Dialogs.GuestCountDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Количество гостей"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="ToolWindow"
+        Background="{StaticResource Brush.Background}">
+    <Grid Margin="16">
+        <Border Style="{StaticResource Card}"
+                Padding="20"
+                MinWidth="320">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Заголовок -->
+                <StackPanel Grid.Row="0"
+                            Margin="0,0,0,16">
+                    <TextBlock Text="Количество гостей"
+                               Style="{StaticResource H2}"/>
+                    <TextBlock Text="Укажите, для скольких гостей нужно описать заказ"
+                               Style="{StaticResource Caption}"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Поле ввода -->
+                <StackPanel Grid.Row="1"
+                            Orientation="Vertical"
+                            Margin="0,0,0,16">
+                    <TextBlock Text="Гостей"
+                               Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding GuestCount, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource TextBox.Base}"
+                             MinWidth="80"
+                             HorizontalAlignment="Left"/>
+                </StackPanel>
+
+                <!-- Кнопки -->
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button Content="Отмена"
+                            Style="{StaticResource Button.Outline}"
+                            MinWidth="90"
+                            Margin="0,0,8,0"
+                            Click="Cancel_Click"/>
+                    <Button Content="Продолжить"
+                            Style="{StaticResource Button.Base}"
+                            MinWidth="110"
+                            Click="Ok_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

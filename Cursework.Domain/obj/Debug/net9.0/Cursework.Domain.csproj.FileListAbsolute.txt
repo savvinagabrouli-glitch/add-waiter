@@ -1,0 +1,14 @@
+D:\Project\Cursework.Domain\bin\Debug\net9.0\Cursework.Domain.deps.json
+D:\Project\Cursework.Domain\bin\Debug\net9.0\Cursework.Domain.runtimeconfig.json
+D:\Project\Cursework.Domain\bin\Debug\net9.0\Cursework.Domain.dll
+D:\Project\Cursework.Domain\bin\Debug\net9.0\Cursework.Domain.pdb
+D:\Project\Cursework.Domain\obj\Debug\net9.0\Cursework.Domain.csproj.AssemblyReference.cache
+D:\Project\Cursework.Domain\obj\Debug\net9.0\Cursework.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Project\Cursework.Domain\obj\Debug\net9.0\Cursework.Domain.AssemblyInfoInputs.cache
+D:\Project\Cursework.Domain\obj\Debug\net9.0\Cursework.Domain.AssemblyInfo.cs
+D:\Project\Cursework.Domain\obj\Debug\net9.0\Cursework.Domain.csproj.CoreCompileInputs.cache
+D:\Project\Cursework.Domain\obj\Debug\net9.0\Cursework.Domain.dll
+D:\Project\Cursework.Domain\obj\Debug\net9.0\refint\Cursework.Domain.dll
+D:\Project\Cursework.Domain\obj\Debug\net9.0\Cursework.Domain.pdb
+D:\Project\Cursework.Domain\obj\Debug\net9.0\Cursework.Domain.genruntimeconfig.cache
+D:\Project\Cursework.Domain\obj\Debug\net9.0\ref\Cursework.Domain.dll

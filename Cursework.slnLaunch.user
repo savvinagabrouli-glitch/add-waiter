@@ -1,0 +1,24 @@
+[
+  {
+    "Name": "Новый профиль",
+    "Projects": [
+      {
+        "Path": "Cursework.Wpf\\Cursework.Wpf.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Cursework.Api\\Cursework.Api.csproj",
+        "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Сайт",
+    "Projects": [
+      {
+        "Path": "Cursework.Api\\Cursework.Api.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
