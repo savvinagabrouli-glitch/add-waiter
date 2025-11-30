@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Windows;
@@ -60,6 +61,24 @@ namespace Cursework.Wpf.Views.Controls
         {
             get => (bool)GetValue(IsDragEnabledProperty);
             set => SetValue(IsDragEnabledProperty, value);
+        }
+
+        public static readonly DependencyProperty IsContextMenuEnabledProperty =
+            DependencyProperty.Register(nameof(IsContextMenuEnabled), typeof(bool), typeof(HallMapZoneControl), new PropertyMetadata(true));
+
+        public bool IsContextMenuEnabled
+        {
+            get => (bool)GetValue(IsContextMenuEnabledProperty);
+            set => SetValue(IsContextMenuEnabledProperty, value);
+        }
+
+        public static readonly DependencyProperty AttentionTableIdsProperty =
+            DependencyProperty.Register(nameof(AttentionTableIds), typeof(IEnumerable<int>), typeof(HallMapZoneControl), new PropertyMetadata(null));
+
+        public IEnumerable<int>? AttentionTableIds
+        {
+            get => (IEnumerable<int>?)GetValue(AttentionTableIdsProperty);
+            set => SetValue(AttentionTableIdsProperty, value);
         }
 
         private void TableThumb_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

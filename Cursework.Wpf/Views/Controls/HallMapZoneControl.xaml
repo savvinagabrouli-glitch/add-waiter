@@ -7,6 +7,7 @@
     <UserControl.Resources>
         <converters:StatusToRussianConverter x:Key="StatusToRu"/>
         <converters:TableModelDisplayConverter x:Key="TableModelDisplay"/>
+        <converters:IdInCollectionToVisibilityConverter x:Key="IdInCollectionToVisibility"/>
     </UserControl.Resources>
 
     <Grid>
@@ -69,7 +70,8 @@
                     <Thumb DragDelta="TableThumb_DragDelta"
                            PreviewMouseLeftButtonDown="TableThumb_PreviewMouseLeftButtonDown"
                            PreviewMouseRightButtonDown="TableThumb_PreviewMouseRightButtonDown"
-                           Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                           Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           ContextMenuService.IsEnabled="{Binding ElementName=Root, Path=IsContextMenuEnabled}">
 
                         <!-- ContextMenu: DataContext = стол, по которому кликнули -->
                         <Thumb.ContextMenu>
@@ -110,11 +112,11 @@
                         </Thumb.ContextMenu>
 
                         <Thumb.Template>
-                            <ControlTemplate TargetType="Thumb">
-                                <Grid Background="Transparent">
+                                <ControlTemplate TargetType="Thumb">
+                                    <Grid Background="Transparent">
 
-                                    <!-- Подсветка выбранного стола -->
-                                    <Border x:Name="Sel"
+                                        <!-- Подсветка выбранного стола -->
+                                        <Border x:Name="Sel"
                                             Width="56"
                                             Height="56"
                                             HorizontalAlignment="Center"
@@ -125,17 +127,33 @@
                                             Background="Transparent"
                                             Opacity="0.22"/>
 
-                                    <Image x:Name="Icon"
-                                           Width="50"
-                                           Height="50"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Source="/Assets/Images/single-seats.png"/>
+                                        <Image x:Name="Icon"
+                                               Width="50"
+                                               Height="50"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Source="/Assets/Images/single-seats.png"/>
 
-                                </Grid>
+                                        <Border x:Name="Attention"
+                                                Width="22"
+                                                Height="22"
+                                                Background="{StaticResource Brush.Danger}"
+                                                CornerRadius="11"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Margin="0,0,-6,-6"
+                                                Visibility="Collapsed">
+                                            <TextBlock Text="!"
+                                                       Foreground="White"
+                                                       FontWeight="Bold"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
 
-                                <ControlTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding Model}" Value="Multi">
+                                    </Grid>
+
+                                    <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Model}" Value="Multi">
                                         <Setter TargetName="Icon" Property="Width" Value="90"/>
                                         <Setter TargetName="Icon" Property="Height" Value="90"/>
                                         <Setter TargetName="Icon" Property="Source" Value="/Assets/Images/multi-seats.png"/>
@@ -146,6 +164,16 @@
                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                         <Setter TargetName="Sel" Property="BorderThickness" Value="2"/>
                                         <Setter TargetName="Sel" Property="Background" Value="{StaticResource Brush.Accent}"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger Value="Visible">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource IdInCollectionToVisibility}">
+                                                <Binding Path="TableId"/>
+                                                <Binding ElementName="Root" Path="AttentionTableIds"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter TargetName="Attention" Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
 
                                     <Trigger Property="IsMouseOver" Value="True">
