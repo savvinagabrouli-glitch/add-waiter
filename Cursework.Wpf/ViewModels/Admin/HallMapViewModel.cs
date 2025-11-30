@@ -123,7 +123,7 @@ namespace Cursework.Wpf.ViewModels.Admin
             get => _zoom;
             set
             {
-                var v = Math.Max(0.5, Math.Min(3.0, value));
+                var v = Math.Max(0.2, Math.Min(4.0, value));
                 Set(ref _zoom, v);
             }
         }
@@ -307,7 +307,21 @@ namespace Cursework.Wpf.ViewModels.Admin
                 Presets.Add(preset);
             }
 
-            SelectedPreset = Presets.FirstOrDefault(p => p.IsActive) ?? Presets.FirstOrDefault();
+            if (IsWaiterMode)
+            {
+                var activeName = _layoutStorage.GetActivePresetName(SelectedZone);
+                if (!string.IsNullOrWhiteSpace(activeName))
+                {
+                    SelectedPreset = Presets.FirstOrDefault(p =>
+                        string.Equals(p.Id, activeName, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(p.Name, activeName, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
+            if (SelectedPreset == null)
+                SelectedPreset = Presets.FirstOrDefault(p => p.IsActive);
+
+            SelectedPreset ??= Presets.FirstOrDefault();
             UpdateAvailableTables();
         }
 

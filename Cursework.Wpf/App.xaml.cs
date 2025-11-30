@@ -123,6 +123,7 @@ public partial class App : System.Windows.Application
             else
             {
                 var waiter = Services.GetRequiredService<WaiterWindow>();
+                waiter.Init(staff);
                 MainWindow = waiter;
                 waiter.Show();
                 ShutdownMode = ShutdownMode.OnMainWindowClose;

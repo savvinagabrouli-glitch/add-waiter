@@ -62,6 +62,15 @@ namespace Cursework.Wpf.Views.Controls
             set => SetValue(IsDragEnabledProperty, value);
         }
 
+        public static readonly DependencyProperty IsContextMenuEnabledProperty =
+            DependencyProperty.Register(nameof(IsContextMenuEnabled), typeof(bool), typeof(HallMapZoneControl), new PropertyMetadata(true));
+
+        public bool IsContextMenuEnabled
+        {
+            get => (bool)GetValue(IsContextMenuEnabledProperty);
+            set => SetValue(IsContextMenuEnabledProperty, value);
+        }
+
         private void TableThumb_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Thumb t)

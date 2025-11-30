@@ -69,7 +69,8 @@
                     <Thumb DragDelta="TableThumb_DragDelta"
                            PreviewMouseLeftButtonDown="TableThumb_PreviewMouseLeftButtonDown"
                            PreviewMouseRightButtonDown="TableThumb_PreviewMouseRightButtonDown"
-                           Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                           Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           ContextMenuService.IsEnabled="{Binding ElementName=Root, Path=IsContextMenuEnabled}">
 
                         <!-- ContextMenu: DataContext = стол, по которому кликнули -->
                         <Thumb.ContextMenu>
